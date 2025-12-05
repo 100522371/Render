@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
     build-essential \
+    libtbb-dev \
     git \
     sudo \
     ninja-build \

@@ -25,6 +25,8 @@ set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)           # Disable Google Mock
 
 FetchContent_MakeAvailable(GSL googletest)
 
+find_package(TBB REQUIRED)
+
 # Enable testing
 enable_testing()
 include(GoogleTest)
