@@ -39,7 +39,7 @@ if(ENABLE_CLANG_TIDY)
   if(CLANG_TIDY_EXE)
     message(STATUS "Found clang-tidy: ${CLANG_TIDY_EXE}")
     # Use the wrapper form so clang-tidy reads compilation database
-    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};--extra-arg=--gcc-toolchain=/opt/gcc-14;--header-filter=.*")
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};--header-filter=.*")
   else()
     message(STATUS "clang-tidy not found; skipping CMAKE_CXX_CLANG_TIDY")
   endif()

@@ -1,0 +1,16 @@
+image_width: 1200
+gamma: 2.6
+
+camera_position: 10 2 3
+camera_target: 5 1 0
+camera_north: 0 1 0
+field_of_view: 50
+
+samples_per_pixel: 200
+max_depth: 100
+
+material_rng_seed: 45
+ray_rng_seed: 133
+
+background_dark_color: .25 .25 .25
+background_light_color: 0 0.5 1
