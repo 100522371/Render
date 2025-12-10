@@ -6,6 +6,7 @@
 #include <image_aos.hpp>
 #include <random>
 #include <scene.hpp>
+#include <string>
 #include <vector.hpp>
 
 namespace render {
@@ -24,7 +25,8 @@ namespace render {
   };
 
   ImageAOS render_image_aos(Scene const & escena, Config const & config, Camera & cam,
-                            ImageAOS & img);
+                            ImageAOS & img, std::string const & partitioner_type = "auto",
+                            int grain_size = 0);
   vector aos_calcular_color(ray const & r, int profundidad, RenderContext & render);
   vector aos_calcular_fondo(ray const & r, Config const & config);
 

@@ -7,4 +7,4 @@ target_sources(render-aos
 )
 target_include_directories(render-aos PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_link_libraries(render-aos PRIVATE Microsoft.GSL::GSL common)
+target_link_libraries(render-aos PRIVATE Microsoft.GSL::GSL common TBB::tbb)
