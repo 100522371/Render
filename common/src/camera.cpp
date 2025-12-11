@@ -51,14 +51,10 @@ namespace render {
   }
 
   ray Camera::generar_ray(int row, int col, double rand_x, double rand_y) {
-    std::uniform_real_distribution<double> dist(-0.5, 0.5);
-    double const dx = rand_x + dist(rng);
-    double const dy = rand_y + dist(rng);
-
     // Posicion Q
     vector const Q =
-        vector::add(origen, vector::add(vector::muld(delta_x, static_cast<double>(col) + dx),
-                                        vector::muld(delta_y, static_cast<double>(row) + dy)));
+        vector::add(origen, vector::add(vector::muld(delta_x, static_cast<double>(col) + rand_x),
+                                        vector::muld(delta_y, static_cast<double>(row) + rand_y)));
     vector const dr = vector::sub(Q, posicion);  // Direccion del rayo
     return ray{posicion, dr};
   }

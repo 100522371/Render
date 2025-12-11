@@ -1,0 +1,13 @@
+image_width: 400
+gamma: 2.1
+
+camera_position: -5 2 1
+camera_target: 0 0 -1
+camera_north: 1 1 1
+field_of_view: 45
+
+samples_per_pixel: 300
+max_depth: 3
+
+background_dark_color: .5 .7 1
+background_light_color: 1 1 1
