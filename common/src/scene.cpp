@@ -263,9 +263,11 @@ std::optional<render::Intersection> Scene::intersect(render::ray const & r) cons
   std::optional<render::Intersection> closest_hit;
   double closest_lambda = std::numeric_limits<double>::infinity();
 
+  double const min_lambda = 1e-3;
+
   for (auto const & obj : objects) {
     auto hit = obj->collision(r);
-    if (hit and hit->lambda < closest_lambda) {
+    if (hit and hit->lambda > min_lambda and hit->lambda < closest_lambda) {
       closest_lambda = hit->lambda;
       closest_hit    = hit;
     }

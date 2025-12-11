@@ -62,9 +62,9 @@ namespace render {
     vector normal = vector::sub(punto_interseccion, center);
     normal        = vector::sub(normal, vector::muld(ejes, vector::dotp(normal, ejes)));
 
-    if (vector::dotp(r.direction, normal) > 1e-6) {
+    /*if (vector::dotp(r.direction, normal) > 1e-6) {
       normal = vector::muld(normal, -1.0);  // invertir normal si el rayo entra
-    }
+    }*/
     return Intersection{punto_interseccion, normal, lambda, material_name};
   }
 
@@ -83,11 +83,11 @@ namespace render {
         vector::add(r.origin, vector::muld(r.direction, lambda));  // vector punto interseccion
     if (vector::sub(punto_interseccion, P).magnitude() <= radius) {
       vector normal_base = n;
-      if (vector::dotp(r.direction, normal_base) > 0.0) {
+      /*if (vector::dotp(r.direction, normal_base) > 0.0) {
         // hacia adentro(positivo), se cambia signo
         normal_base = vector::muld(normal_base, -1.0);
         normal_base = vector::normalize(normal_base);
-      }
+      }*/
       return Intersection{punto_interseccion, normal_base, lambda, material_name};
     }
     return std::nullopt;  // fuera del radio

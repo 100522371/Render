@@ -48,9 +48,9 @@ namespace render {
         vector::sub(punto_interseccion, center);  // vector normal                 // normalizar
     normal = vector::normalize(normal);
 
-    if (vector::dotp(r.direction, normal) > 0.0) {
+    /*if (vector::dotp(r.direction, normal) > 0.0) {
       normal = vector::muld(normal, -1.0);  // invertir normal si el rayo entra
-    }
+    }*/
     return Intersection(punto_interseccion, normal, lambda, material_name);
   }
 
