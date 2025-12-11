@@ -7,23 +7,28 @@
 #include <fstream>
 #include <image_aos.hpp>
 #include <iostream>
+#include <memory>
 #include <render-aos.hpp>
 #include <scene.hpp>
 #include <string>
+#include <tbb/global_control.h>
 #include <vector>
 
 int main(int argc, char * argv[]) {
   std::vector<std::string> args(argv, argv + argc);
 
-  // Aceptamos hasta 6 argumentos (nombre del programa + 5 args)
+  // Aceptamos hasta 7 argumentos (nombre del programa + 6 args)
   // 4: config, scene, output
   // 5: partitioner(si no se pone, sera el determinado)
   // 6: grain_size(si no se pone, sera el determinado)
-  if (argc < 4 or argc > 6) {
-    std::cerr << "Uso: " << args.at(0)
-              << " <config_file> <scene_file> <output_image> [partitioner] [grain_size]\n";
+  // 7: nº de hilos (si no se pone, sera el determinado)
+  if (argc < 4 or argc > 7) {
+    std::cerr
+        << "Uso: " << args.at(0)
+        << " <config_file> <scene_file> <output_image> [partitioner] [grain_size] [max_threads]\n";
     std::cerr << "   [partitioner] opcional: auto (default), simple, static\n";
     std::cerr << "   [grain_size]  opcional: entero (default: 0 = auto)\n";
+    std::cerr << "   [max_threads] opcional: entero positivo (default: 0 = auto)\n";
     return 1;
   }
 
@@ -34,6 +39,7 @@ int main(int argc, char * argv[]) {
   // valores por defecto
   std::string partitioner = "auto";  // Valor por defecto
   int grain_size          = 0;       // Valor por defecto (0 deja que TBB decida)
+  int max_threads         = 0;       // Valor por defecto (0 deja que TBB decida)
 
   // Si hay al menos 5 argumentos, leemos el particionador
   if (argc >= 5) {
@@ -42,7 +48,7 @@ int main(int argc, char * argv[]) {
   }
 
   // Si hay 6 argumentos, leemos el tamaño de grano
-  if (argc == 6) {
+  if (argc >= 6) {
     try {
       grain_size = std::stoi(args.at(5));
       std::cout << "Usando tamaño de grano: " << grain_size << "\n";
@@ -51,6 +57,17 @@ int main(int argc, char * argv[]) {
       return 1;
     }
   }
+
+  // Si hay 7 argumentos, leemos el nº de hilos
+  if (argc == 7) {
+    max_threads = std::stoi(args.at(6));
+    if (max_threads <= 0) {
+      std::cerr << "Error: El número de hilos debe ser un entero positivo.\n";
+      return 1;
+    }
+    std::cerr << "Usando número máximo de hilos: " << max_threads << "\n";
+  }
+
   Config config;
   Scene scene;
   try {
@@ -59,6 +76,12 @@ int main(int argc, char * argv[]) {
     render::Camera camara(config);
     ImageAOS img(camara.ancho_imagen, camara.alto_imagen);
 
+    // Configuramos el número máximo de hilos si se especificó
+    std::unique_ptr<tbb::global_control> control;
+    if (max_threads > 0) {
+      control = std::make_unique<tbb::global_control>(tbb::global_control::max_allowed_parallelism,
+                                                      static_cast<std::size_t>(max_threads));
+    }
     // Renderiza la imagen y obtiene los píxeles en formato AOS
     render::render_image_aos(scene, config, camara, img, partitioner, grain_size);
     // Escribe la imagen en formato PPM (P3)
