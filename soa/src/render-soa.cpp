@@ -51,7 +51,7 @@ namespace render {
 
           render::vector acumulado{0.0, 0.0, 0.0};
           // generamos la distribucion uniforme para el anti-aliasing
-          std::uniform_real_distribution<double> dist(0.0, 1.0);
+          std::uniform_real_distribution<double> dist(-0.5, 0.5);
 
           for (int s = 0; s < config.samples_per_pixel; ++s) {
             // usamos ctx.ray_rng para generar los offsets aleatorios

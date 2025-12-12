@@ -46,26 +46,55 @@ namespace render {
     double const b = 2.0 * vector::dotp(dr_perpendicular, rc_perpendicular);
     double const c = vector::dotp(rc_perpendicular, rc_perpendicular) - radius * radius;
 
-    auto lambda_opt = ecuacion_cuadratica(a, b, c);
-    if (not lambda_opt.has_value()) {
-      return std::nullopt;  // no hay intersección
+    // Protección para rayos paralelos (a muy cercano a 0)
+    if (std::abs(a) < 1e-8) {
+      return std::nullopt;
     }
-    double const lambda = *lambda_opt;
 
-    vector const punto_interseccion =
-        vector::add(r.origin, vector::muld(r.direction, lambda));  // vector punto interseccion
-    double const altura_interseccion =
-        vector::dotp(vector::sub(punto_interseccion, center), ejes);  // altura desde el center
-    if (altura_interseccion > altura / 2.0 or altura_interseccion < -altura / 2.0) {
-      return std::nullopt;  // fuera de los limites del cilindro
+    double const discriminante = b * b - 4.0 * a * c;
+
+    // Igual que en Sphere: si discriminante negativo, fuera.
+    if (discriminante < 1e-8) {
+      return std::nullopt;
     }
-    vector normal = vector::sub(punto_interseccion, center);
-    normal        = vector::sub(normal, vector::muld(ejes, vector::dotp(normal, ejes)));
 
-    /*if (vector::dotp(r.direction, normal) > 1e-6) {
-      normal = vector::muld(normal, -1.0);  // invertir normal si el rayo entra
-    }*/
-    return Intersection{punto_interseccion, normal, lambda, material_name};
+    double const raiz    = std::sqrt(discriminante);
+    double const lambda1 = (-b - raiz) / (2.0 * a);
+    double const lambda2 = (-b + raiz) / (2.0 * a);
+    double const epsilon = 1e-3;
+    // 1. Comprobamos la primera intersección (entrada)
+    if (lambda1 > epsilon) {
+      vector const punto_interseccion = vector::add(r.origin, vector::muld(r.direction, lambda1));
+
+      double const altura_interseccion =
+          vector::dotp(vector::sub(punto_interseccion, center), ejes);
+
+      if (altura_interseccion <= altura / 2.0 and altura_interseccion >= -altura / 2.0) {
+        vector normal = vector::sub(punto_interseccion, center);
+        normal        = vector::sub(normal, vector::muld(ejes, vector::dotp(normal, ejes)));
+        normal        = vector::normalize(normal);
+
+        return Intersection{punto_interseccion, normal, lambda1, material_name};
+      }
+    }
+
+    // 2. Si la primera no valía (por distancia o altura), probamos la segunda (salida)
+    if (lambda2 > epsilon) {
+      vector const punto_interseccion = vector::add(r.origin, vector::muld(r.direction, lambda2));
+
+      double const altura_interseccion =
+          vector::dotp(vector::sub(punto_interseccion, center), ejes);
+
+      if (altura_interseccion <= altura / 2.0 and altura_interseccion >= -altura / 2.0) {
+        vector normal = vector::sub(punto_interseccion, center);
+        normal        = vector::sub(normal, vector::muld(ejes, vector::dotp(normal, ejes)));
+        normal        = vector::normalize(normal);
+
+        return Intersection{punto_interseccion, normal, lambda2, material_name};
+      }
+    }
+
+    return std::nullopt;
   }
 
   std::optional<Intersection> render::Cylinder::intersect_base(ray const & r, vector const & P,
@@ -76,18 +105,13 @@ namespace render {
     }
     double const numerador = vector::dotp(vector::sub(P, r.origin), n);
     double const lambda    = numerador / denominador;
-    if (lambda < 1e-6) {
+    if (lambda < 1e-3) {
       return std::nullopt;  // detras/se ignora
     }
     vector const punto_interseccion =
         vector::add(r.origin, vector::muld(r.direction, lambda));  // vector punto interseccion
     if (vector::sub(punto_interseccion, P).magnitude() <= radius) {
-      vector normal_base = n;
-      /*if (vector::dotp(r.direction, normal_base) > 0.0) {
-        // hacia adentro(positivo), se cambia signo
-        normal_base = vector::muld(normal_base, -1.0);
-        normal_base = vector::normalize(normal_base);
-      }*/
+      vector const normal_base = vector::normalize(n);
       return Intersection{punto_interseccion, normal_base, lambda, material_name};
     }
     return std::nullopt;  // fuera del radio
@@ -101,14 +125,11 @@ namespace render {
     double const raiz = std::sqrt(discriminante);
     double lambda1    = (-b - raiz) / (2.0 * a);
     double lambda2    = (-b + raiz) / (2.0 * a);
-    if (lambda1 >= 1e-6 and lambda2 >= 1 - 1e-6) {
-      return std::min(lambda1, lambda2);
+    if (lambda1 > 1e-3) {
+      return lambda1;  // primera solución válida
     }
-    if (lambda1 >= 1e-6) {
-      return lambda1;
-    }
-    if (lambda2 >= 1e-6) {
-      return lambda2;
+    if (lambda2 > 1e-3) {
+      return lambda2;  // segunda solución válida
     }
     return std::nullopt;  // ambas soluciones son negativas
   }

@@ -32,11 +32,11 @@ namespace render {
     double const lambda1 = (-b - raiz) / (2.0 * a);
     double const lambda2 = (-b + raiz) / (2.0 * a);
     double lambda        = 0.0;
-    if (lambda1 >= 1e-6 and lambda2 >= 1e-6) {
+    if (lambda1 >= 1e-3 and lambda2 >= 1e-3) {
       lambda = std::min(lambda1, lambda2);
-    } else if (lambda1 >= 1e-6) {
+    } else if (lambda1 >= 1e-3) {
       lambda = lambda1;
-    } else if (lambda2 >= 1e-6) {
+    } else if (lambda2 >= 1e-3) {
       lambda = lambda2;
     } else {
       return std::nullopt;  // ambas intersecciones son negativas
