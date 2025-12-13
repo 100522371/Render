@@ -1,9 +1,9 @@
-#ifndef RENDER_SOA_HPP
-#define RENDER_SOA_HPP
+#ifndef RENDER_PAR_HPP
+#define RENDER_PAR_HPP
 
 #include <camera.hpp>
 #include <config.hpp>
-#include <image_soa.hpp>
+#include <image_par.hpp>
 #include <random>
 #include <scene.hpp>
 #include <string>
@@ -16,12 +16,12 @@ namespace render {
   struct RenderContext {
     Scene const * escena;
     Config const * config;
-    std::mt19937_64 ray_rng;
-    std::mt19937_64 material_rng;
+    std::mt19937_64 * ray_rng;
+    std::mt19937_64 * material_rng;
 
-    RenderContext(Scene const & escena_, Config const & config_, std::mt19937_64 ray_rng_,
-                  std::mt19937_64 material_rng_)
-        : escena(&escena_), config(&config_), ray_rng(ray_rng_), material_rng(material_rng_) { }
+    RenderContext(Scene const & escena_, Config const & config_, std::mt19937_64 & ray_rng_,
+                  std::mt19937_64 & material_rng_)
+        : escena(&escena_), config(&config_), ray_rng(&ray_rng_), material_rng(&material_rng_) { }
   };
 
   ImageSOA render_image_soa(Scene const & escena, Config const & config, Camera & cam,

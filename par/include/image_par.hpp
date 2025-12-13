@@ -1,5 +1,5 @@
-#ifndef IMAGE_SOA_HPP
-#define IMAGE_SOA_HPP
+#ifndef IMAGE_PAR_HPP
+#define IMAGE_PAR_HPP
 
 #include <ostream>
 #include <pixel.hpp>

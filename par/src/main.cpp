@@ -2,10 +2,10 @@
 #include <config.hpp>
 #include <exception>
 #include <fstream>
-#include <image_soa.hpp>
+#include <image_par.hpp>
 #include <iostream>
 #include <memory>
-#include <render-soa.hpp>
+#include <render-par.hpp>
 #include <scene.hpp>
 #include <string>
 #include <tbb/global_control.h>

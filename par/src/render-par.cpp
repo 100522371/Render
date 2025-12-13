@@ -1,9 +1,12 @@
-#include "render-soa.hpp"
+#include "render-par.hpp"
 #include <algorithm>
+#include <atomic>
 #include <camera.hpp>
 #include <cmath>
 #include <config.hpp>
-#include <image_soa.hpp>
+#include <cstdint>
+#include <functional>
+#include <image_par.hpp>
 #include <intersection.hpp>
 #include <material.hpp>
 #include <optional>
@@ -16,18 +19,50 @@
 
 // includes de TBB
 #include <tbb/blocked_range2d.h>
+#include <tbb/enumerable_thread_specific.h>
 #include <tbb/parallel_for.h>
 #include <tbb/partitioner.h>
+#include <tbb/task_arena.h>
 
 namespace render {
+
+  // Estructura para almacenar los generadores de números aleatorios por hilo
+  struct ThreadLocalRNG {
+    std::mt19937_64 ray_rng;
+    std::mt19937_64 material_rng;
+  };
 
   // Acepta parametros para el tipo de partitioner y el tamaño del grano
   ImageSOA render_image_soa(Scene const & escena, Config const & config, Camera & camara,
                             ImageSOA & img, std::string const & partitioner_type, int grain_size) {
-    // El constructor de blocked_range2d admite el grano para filas y columnas.
-    // blocked_range2d(row_begin, row_end, row_grain, col_begin, col_end, col_grain)
-    // Si grain_size es 0 o negativo, dejamos que TBB decida (usamos constructor simple)
-    // Usamos static_cast para evitar errores de conversión de signo
+    // determinamos el nº de hilos a usar
+    int max_threads = tbb::this_task_arena::max_concurrency();
+    if (max_threads <= 0) {
+      max_threads = 32;  // fallback
+    }
+
+    std::vector<std::uint64_t> seeds_ray(static_cast<std::size_t>(max_threads));
+    std::vector<std::uint64_t> seeds_material(static_cast<std::size_t>(max_threads));
+
+    // generador maestro para semillas
+    std::mt19937_64 master_ray_gen(config.ray_rng_seed);
+    std::mt19937_64 master_mat_gen(config.material_rng_seed);
+    // Llenamos los vectores con números aleatorios derivados del maestro
+    // Usamos std::generate. std::ref asegura que el estado del maestro avance.
+    std::ranges::generate(seeds_ray.begin(), seeds_ray.end(), std::ref(master_ray_gen));
+    std::ranges::generate(seeds_material.begin(), seeds_material.end(), std::ref(master_mat_gen));
+    // 3. Configurar TLS
+    tbb::enumerable_thread_specific<ThreadLocalRNG> tls_rngs([&]() {
+      static std::atomic<std::size_t> counter{0};
+      std::size_t thread_id = counter++;
+
+      // Usamos el ID del hilo para escoger una semilla pre-generada del vector
+      std::size_t index = thread_id % seeds_ray.size();
+
+      return ThreadLocalRNG{std::mt19937_64(seeds_ray[index]),
+                            std::mt19937_64(seeds_material[index])};
+    });
+
     tbb::blocked_range2d<int> rango =
         (grain_size > 0) ? tbb::blocked_range2d<int>(
                                0, camara.alto_imagen, static_cast<std::size_t>(grain_size), 0,
@@ -36,18 +71,12 @@ namespace render {
 
     // lambda que ejecutará cada hilo
     auto loop_body = [&](tbb::blocked_range2d<int> const & r) {
+      ThreadLocalRNG & local_rngs = tls_rngs.local();
       for (int fila = r.rows().begin(); fila != r.rows().end(); ++fila) {
         for (int col = r.cols().begin(); col != r.cols().end(); ++col) {
           // pixel_id unico por pixel
-          std::size_t pixel_id =
-              static_cast<std::size_t>(fila) * static_cast<std::size_t>(camara.ancho_imagen) +
-              static_cast<std::size_t>(col);
 
-          // render local con semillas unicas por pixel
-          // cada hilo tiene su propio generador de numeros aleatorios para evitar condiciones de
-          // carrera
-          RenderContext ctx{escena, config, std::mt19937_64(config.ray_rng_seed + pixel_id),
-                            std::mt19937_64(config.material_rng_seed + pixel_id)};
+          RenderContext ctx{escena, config, local_rngs.ray_rng, local_rngs.material_rng};
 
           render::vector acumulado{0.0, 0.0, 0.0};
           // generamos la distribucion uniforme para el anti-aliasing
@@ -55,8 +84,8 @@ namespace render {
 
           for (int s = 0; s < config.samples_per_pixel; ++s) {
             // usamos ctx.ray_rng para generar los offsets aleatorios
-            double u_offset = dist(ctx.ray_rng);
-            double v_offset = dist(ctx.ray_rng);
+            double u_offset = dist(*ctx.ray_rng);
+            double v_offset = dist(*ctx.ray_rng);
 
             ray const rayo = camara.generar_ray(fila, col, u_offset, v_offset);
             // pasamos el contexto render al calcular_color
@@ -109,7 +138,7 @@ namespace render {
     // Generador aleatorio local
     // Obtener dirección reflejada y reflectancia según el tipo de material
     auto [scattered_dir, reflectance] =
-        mat->scatter(r.direction, inter_mas_cercana->vector_normal, render.material_rng);
+        mat->scatter(r.direction, inter_mas_cercana->vector_normal, *render.material_rng);
     // Crear nuevo rayo desde el punto de intersección
     ray const scattered_ray(inter_mas_cercana->punto_interseccion, scattered_dir);
     // Recursividad: calcular color reflejado
