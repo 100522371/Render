@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <image_soa.hpp>
+#include <image_par.hpp>
 #include <pixel.hpp>
 #include <sstream>
 #include <stdexcept>

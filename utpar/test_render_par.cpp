@@ -3,11 +3,11 @@
 #include <cmath>
 #include <config.hpp>
 #include <gtest/gtest.h>
-#include <image_soa.hpp>  // Usamos ImageSOA
+#include <image_par.hpp>  // Usamos ImageSOA
 #include <pixel.hpp>
 #include <random>
 #include <ray.hpp>
-#include <render-soa.hpp>  // Incluimos render-soa.hpp
+#include <render-par.hpp>  // Incluimos render-soa.hpp
 #include <scene.hpp>
 #include <vector.hpp>
 

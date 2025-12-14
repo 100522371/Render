@@ -47,5 +47,5 @@ endif()
 
 add_subdirectory(common)
 add_subdirectory(par)
-add_subdirectory(utcommon)
-add_subdirectory(utpar)
+#add_subdirectory(utcommon)
+# add_subdirectory(utpar)
