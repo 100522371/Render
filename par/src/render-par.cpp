@@ -1,9 +1,9 @@
-#include "render-par.hpp"
 #include <algorithm>
 #include <atomic>
 #include <camera.hpp>
 #include <cmath>
 #include <config.hpp>
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <image_par.hpp>
@@ -13,16 +13,18 @@
 #include <pixel.hpp>
 #include <random>
 #include <ray.hpp>
+#include <render-par.hpp>
 #include <scene.hpp>
 #include <string>
 #include <vector.hpp>
+#include <vector>
 
 // includes de TBB
-#include <tbb/blocked_range2d.h>
-#include <tbb/enumerable_thread_specific.h>
-#include <tbb/parallel_for.h>
-#include <tbb/partitioner.h>
-#include <tbb/task_arena.h>
+#include <oneapi/tbb/blocked_range2d.h>
+#include <oneapi/tbb/enumerable_thread_specific.h>
+#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/partitioner.h>
+#include <oneapi/tbb/task_arena.h>
 
 namespace render {
 
@@ -36,7 +38,7 @@ namespace render {
   ImageSOA render_image_soa(Scene const & escena, Config const & config, Camera & camara,
                             ImageSOA & img, std::string const & partitioner_type, int grain_size) {
     // determinamos el nº de hilos a usar
-    int max_threads = tbb::this_task_arena::max_concurrency();
+    int max_threads = oneapi::tbb::this_task_arena::max_concurrency();
     if (max_threads <= 0) {
       max_threads = 32;  // fallback
     }
@@ -52,25 +54,26 @@ namespace render {
     std::ranges::generate(seeds_ray.begin(), seeds_ray.end(), std::ref(master_ray_gen));
     std::ranges::generate(seeds_material.begin(), seeds_material.end(), std::ref(master_mat_gen));
     // 3. Configurar TLS
-    tbb::enumerable_thread_specific<ThreadLocalRNG> tls_rngs([&]() {
+    oneapi::tbb::enumerable_thread_specific<ThreadLocalRNG> tls_rngs([&]() {
       static std::atomic<std::size_t> counter{0};
-      std::size_t thread_id = counter++;
+      std::size_t const thread_id = counter++;
 
       // Usamos el ID del hilo para escoger una semilla pre-generada del vector
-      std::size_t index = thread_id % seeds_ray.size();
+      std::size_t const index = thread_id % seeds_ray.size();
 
       return ThreadLocalRNG{std::mt19937_64(seeds_ray[index]),
                             std::mt19937_64(seeds_material[index])};
     });
 
-    tbb::blocked_range2d<int> rango =
-        (grain_size > 0) ? tbb::blocked_range2d<int>(
-                               0, camara.alto_imagen, static_cast<std::size_t>(grain_size), 0,
-                               camara.ancho_imagen, static_cast<std::size_t>(grain_size))
-                         : tbb::blocked_range2d<int>(0, camara.alto_imagen, 0, camara.ancho_imagen);
+    oneapi::tbb::blocked_range2d<int> const rango =
+        (grain_size > 0)
+            ? oneapi::tbb::blocked_range2d<int>(
+                  0, camara.alto_imagen, static_cast<std::size_t>(grain_size), 0,
+                  camara.ancho_imagen, static_cast<std::size_t>(grain_size))
+            : oneapi::tbb::blocked_range2d<int>(0, camara.alto_imagen, 0, camara.ancho_imagen);
 
     // lambda que ejecutará cada hilo
-    auto loop_body = [&](tbb::blocked_range2d<int> const & r) {
+    auto loop_body = [&](oneapi::tbb::blocked_range2d<int> const & r) {
       ThreadLocalRNG & local_rngs = tls_rngs.local();
       for (int fila = r.rows().begin(); fila != r.rows().end(); ++fila) {
         for (int col = r.cols().begin(); col != r.cols().end(); ++col) {
@@ -84,8 +87,8 @@ namespace render {
 
           for (int s = 0; s < config.samples_per_pixel; ++s) {
             // usamos ctx.ray_rng para generar los offsets aleatorios
-            double u_offset = dist(*ctx.ray_rng);
-            double v_offset = dist(*ctx.ray_rng);
+            double const u_offset = dist(*ctx.ray_rng);
+            double const v_offset = dist(*ctx.ray_rng);
 
             ray const rayo = camara.generar_ray(fila, col, u_offset, v_offset);
             // pasamos el contexto render al calcular_color
@@ -108,14 +111,13 @@ namespace render {
         }
       }
     };
-
     // Selección de particionador
     if (partitioner_type == "simple") {
-      tbb::parallel_for(rango, loop_body, tbb::simple_partitioner());
+      oneapi::tbb::parallel_for(rango, loop_body, oneapi::tbb::simple_partitioner());
     } else if (partitioner_type == "static") {
-      tbb::parallel_for(rango, loop_body, tbb::static_partitioner());
+      oneapi::tbb::parallel_for(rango, loop_body, oneapi::tbb::static_partitioner());
     } else {
-      tbb::parallel_for(rango, loop_body, tbb::auto_partitioner());
+      oneapi::tbb::parallel_for(rango, loop_body, oneapi::tbb::auto_partitioner());
     }
 
     return img;

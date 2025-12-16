@@ -1,14 +1,15 @@
 #include <camera.hpp>
 #include <config.hpp>
+#include <cstddef>
 #include <exception>
 #include <fstream>
 #include <image_par.hpp>
 #include <iostream>
 #include <memory>
+#include <oneapi/tbb/global_control.h>
 #include <render-par.hpp>
 #include <scene.hpp>
 #include <string>
-#include <tbb/global_control.h>
 #include <vector>
 
 int main(int argc, char * argv[]) {
@@ -73,10 +74,11 @@ int main(int argc, char * argv[]) {
     // Renderiza la imagen y obtiene los píxeles en formato AOS
 
     // Configuramos el número máximo de hilos si se especificó
-    std::unique_ptr<tbb::global_control> control;
+    std::unique_ptr<oneapi::tbb::global_control> control;
     if (max_threads > 0) {
-      control = std::make_unique<tbb::global_control>(tbb::global_control::max_allowed_parallelism,
-                                                      static_cast<std::size_t>(max_threads));
+      control = std::make_unique<oneapi::tbb::global_control>(
+          oneapi::tbb::global_control::max_allowed_parallelism,
+          static_cast<std::size_t>(max_threads));
     }
 
     render::render_image_soa(scene, config, camara, img, partitioner, grain_size);

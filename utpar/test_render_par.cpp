@@ -15,8 +15,8 @@
 TEST(RenderSOA, RenderContextConstructorInitializesPointers) {
   Scene const escena;
   Config const cfg;
-  std::mt19937_64 const rgen(123);
-  std::mt19937_64 const mgen(456);
+  std::mt19937_64 rgen(123);
+  std::mt19937_64 mgen(456);
 
   render::RenderContext const ctx{escena, cfg, rgen, mgen};
 
@@ -29,8 +29,8 @@ TEST(RenderSOA, RenderContextConstructorInitializesPointers) {
 TEST(RenderSOA, SoaCalcularColor_DepthZeroReturnsBlack) {
   Scene const escena;
   Config const cfg;
-  std::mt19937_64 const rgen(1);
-  std::mt19937_64 const mgen(2);
+  std::mt19937_64 rgen(1);
+  std::mt19937_64 mgen(2);
   render::RenderContext ctx{escena, cfg, rgen, mgen};
 
   render::ray r;
@@ -50,8 +50,8 @@ TEST(RenderSOA, SoaCalcularColor_NoIntersectionReturnsBackground) {
   cfg.background_dark_color  = render::vector{0.1, 0.2, 0.3};
   cfg.background_light_color = render::vector{0.9, 0.8, 0.7};
 
-  std::mt19937_64 const rgen(11);
-  std::mt19937_64 const mgen(22);
+  std::mt19937_64 rgen(11);
+  std::mt19937_64 mgen(22);
   render::RenderContext ctx{escena, cfg, rgen, mgen};
 
   render::ray r;

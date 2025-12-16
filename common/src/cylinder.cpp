@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <cmath>
 #include <cylinder.hpp>
 #include <intersection.hpp>
@@ -36,64 +35,44 @@ namespace render {
 
   std::optional<Intersection> render::Cylinder::intersect_lateral(ray const & r) const {
     vector const rc = vector::sub(r.origin, center);  // Vector desde el center al origen del rayo
-
-    vector const dr_perpendicular = vector::sub(
-        r.direction,
-        vector::muld(ejes, vector::dotp(r.direction, ejes)));  // Componente perpendicular dr
-    vector const rc_perpendicular =
-        vector::sub(rc, vector::muld(ejes, vector::dotp(rc, ejes)));  // Componente perpendicular rc
-    double const a = vector::dotp(dr_perpendicular, dr_perpendicular);
-    double const b = 2.0 * vector::dotp(dr_perpendicular, rc_perpendicular);
-    double const c = vector::dotp(rc_perpendicular, rc_perpendicular) - radius * radius;
-
-    // Protección para rayos paralelos (a muy cercano a 0)
-    if (std::abs(a) < 1e-8) {
+    vector const dr_per = vector::sub(
+        r.direction, vector::muld(ejes, vector::dotp(r.direction, ejes)));  // perpendicular dr
+    vector const rc_per =
+        vector::sub(rc, vector::muld(ejes, vector::dotp(rc, ejes)));  // perpendicular rc
+    double const a = vector::dotp(dr_per, dr_per);
+    double const b = 2.0 * vector::dotp(dr_per, rc_per);
+    double const c = vector::dotp(rc_per, rc_per) - radius * radius;
+    if (std::abs(a) < 1e-8) {  // Protección para rayos paralelos (a muy cercano a 0)
       return std::nullopt;
     }
-
     double const discriminante = b * b - 4.0 * a * c;
-
-    // Igual que en Sphere: si discriminante negativo, fuera.
-    if (discriminante < 1e-8) {
+    if (discriminante < 1e-8) {  // Igual que en Sphere: si discriminante negativo, fuera.
       return std::nullopt;
     }
-
     double const raiz    = std::sqrt(discriminante);
     double const lambda1 = (-b - raiz) / (2.0 * a);
     double const lambda2 = (-b + raiz) / (2.0 * a);
     double const epsilon = 1e-3;
-    // 1. Comprobamos la primera intersección (entrada)
-    if (lambda1 > epsilon) {
+    if (lambda1 > epsilon) {  // 1. Comprobamos la primera intersección (entrada)
       vector const punto_interseccion = vector::add(r.origin, vector::muld(r.direction, lambda1));
-
-      double const altura_interseccion =
-          vector::dotp(vector::sub(punto_interseccion, center), ejes);
-
-      if (altura_interseccion <= altura / 2.0 and altura_interseccion >= -altura / 2.0) {
+      double const altura_int         = vector::dotp(vector::sub(punto_interseccion, center), ejes);
+      if (altura_int <= altura / 2.0 and altura_int >= -altura / 2.0) {
         vector normal = vector::sub(punto_interseccion, center);
         normal        = vector::sub(normal, vector::muld(ejes, vector::dotp(normal, ejes)));
         normal        = vector::normalize(normal);
-
         return Intersection{punto_interseccion, normal, lambda1, material_name};
       }
     }
-
-    // 2. Si la primera no valía (por distancia o altura), probamos la segunda (salida)
-    if (lambda2 > epsilon) {
+    if (lambda2 > epsilon) {  // 2. Si la primera no valía, probamos la segunda (salida)
       vector const punto_interseccion = vector::add(r.origin, vector::muld(r.direction, lambda2));
-
-      double const altura_interseccion =
-          vector::dotp(vector::sub(punto_interseccion, center), ejes);
-
-      if (altura_interseccion <= altura / 2.0 and altura_interseccion >= -altura / 2.0) {
+      double const altura_int         = vector::dotp(vector::sub(punto_interseccion, center), ejes);
+      if (altura_int <= altura / 2.0 and altura_int >= -altura / 2.0) {
         vector normal = vector::sub(punto_interseccion, center);
         normal        = vector::sub(normal, vector::muld(ejes, vector::dotp(normal, ejes)));
         normal        = vector::normalize(normal);
-
         return Intersection{punto_interseccion, normal, lambda2, material_name};
       }
     }
-
     return std::nullopt;
   }
 
