@@ -15,13 +15,13 @@
 #include <ray.hpp>
 #include <render-par.hpp>
 #include <scene.hpp>
-#include <string>
 #include <vector.hpp>
 #include <vector>
 
 // includes de TBB
 #include <oneapi/tbb/blocked_range2d.h>
 #include <oneapi/tbb/enumerable_thread_specific.h>
+#include <oneapi/tbb/global_control.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/partitioner.h>
 #include <oneapi/tbb/task_arena.h>
@@ -36,31 +36,26 @@ namespace render {
 
   // Acepta parametros para el tipo de partitioner y el tamaño del grano
   ImageSOA render_image_soa(Scene const & escena, Config const & config, Camera & camara,
-                            ImageSOA & img, std::string const & partitioner_type, int grain_size) {
-    // determinamos el nº de hilos a usar
-    int max_threads = oneapi::tbb::this_task_arena::max_concurrency();
-    if (max_threads <= 0) {
-      max_threads = 32;  // fallback
-    }
+                            ImageSOA & img) {
+    constexpr int max_threads = 64;
+    constexpr int grain_size  = 1;
 
+    // 1. Configurar el número máximo de hilos
+    oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism,
+                                        static_cast<std::size_t>(max_threads));
+
+    // generacion de semillas
     std::vector<std::uint64_t> seeds_ray(static_cast<std::size_t>(max_threads));
     std::vector<std::uint64_t> seeds_material(static_cast<std::size_t>(max_threads));
-
-    // generador maestro para semillas
     std::mt19937_64 master_ray_gen(config.ray_rng_seed);
     std::mt19937_64 master_mat_gen(config.material_rng_seed);
-    // Llenamos los vectores con números aleatorios derivados del maestro
-    // Usamos std::generate. std::ref asegura que el estado del maestro avance.
     std::ranges::generate(seeds_ray.begin(), seeds_ray.end(), std::ref(master_ray_gen));
     std::ranges::generate(seeds_material.begin(), seeds_material.end(), std::ref(master_mat_gen));
     // 3. Configurar TLS
     oneapi::tbb::enumerable_thread_specific<ThreadLocalRNG> tls_rngs([&]() {
       static std::atomic<std::size_t> counter{0};
       std::size_t const thread_id = counter++;
-
-      // Usamos el ID del hilo para escoger una semilla pre-generada del vector
-      std::size_t const index = thread_id % seeds_ray.size();
-
+      std::size_t const index     = thread_id % seeds_ray.size();
       return ThreadLocalRNG{std::mt19937_64(seeds_ray[index]),
                             std::mt19937_64(seeds_material[index])};
     });
@@ -111,14 +106,8 @@ namespace render {
         }
       }
     };
-    // Selección de particionador
-    if (partitioner_type == "simple") {
-      oneapi::tbb::parallel_for(rango, loop_body, oneapi::tbb::simple_partitioner());
-    } else if (partitioner_type == "static") {
-      oneapi::tbb::parallel_for(rango, loop_body, oneapi::tbb::static_partitioner());
-    } else {
-      oneapi::tbb::parallel_for(rango, loop_body, oneapi::tbb::auto_partitioner());
-    }
+    // ejecucion con el particionador optimo
+    oneapi::tbb::parallel_for(rango, loop_body, oneapi::tbb::simple_partitioner());
 
     return img;
   }
