@@ -15,6 +15,7 @@
 #include <ray.hpp>
 #include <render-par.hpp>
 #include <scene.hpp>
+#include <utility>
 #include <vector.hpp>
 #include <vector>
 
@@ -24,7 +25,6 @@
 #include <oneapi/tbb/global_control.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/partitioner.h>
-#include <oneapi/tbb/task_arena.h>
 
 namespace render {
 
@@ -74,16 +74,13 @@ namespace render {
     ctx.img->set_pixel(col, fila, Pixel{r, g, b});
   }
 
-  // Acepta parametros para el tipo de partitioner y el tamaño del grano
   ImageSOA render_image_soa(Scene const & escena, Config const & config, Camera & camara,
                             ImageSOA & img) {
     constexpr int max_threads = 64;
     constexpr int grain_size  = 1;
-
     // 1. Configurar el número máximo de hilos
-    oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism,
-                                        static_cast<std::size_t>(max_threads));
-
+    oneapi::tbb::global_control const control(oneapi::tbb::global_control::max_allowed_parallelism,
+                                              static_cast<std::size_t>(max_threads));
     // generacion de semillas
     auto [seeds_ray, seeds_material] = generar_semillas_soa(max_threads, config);
     // 3. Configurar TLS
@@ -100,7 +97,6 @@ namespace render {
                   0, camara.alto_imagen, static_cast<std::size_t>(grain_size), 0,
                   camara.ancho_imagen, static_cast<std::size_t>(grain_size))
             : oneapi::tbb::blocked_range2d<int>(0, camara.alto_imagen, 0, camara.ancho_imagen);
-
     // lambda que ejecutará cada hilo
     auto loop_body = [&](oneapi::tbb::blocked_range2d<int> const & r) {
       ThreadLocalRNG & local_rngs = tls_rngs.local();

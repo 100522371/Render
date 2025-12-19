@@ -50,8 +50,7 @@ namespace render {
       return std::nullopt;
     }
     double const raiz    = std::sqrt(discriminante);
-    double const lambda1 = (-b - raiz) / (2.0 * a);
-    double const lambda2 = (-b + raiz) / (2.0 * a);
+    double const lambda1 = (-b - raiz) / (2.0 * a), lambda2 = (-b + raiz) / (2.0 * a);
     double const epsilon = 1e-3;
     if (lambda1 > epsilon) {  // 1. Comprobamos la primera intersección (entrada)
       vector const punto_interseccion = vector::add(r.origin, vector::muld(r.direction, lambda1));
