@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 #include <string>
 
+// Pruebas unitarias para la clase Config
 TEST(test_config, default_values) {
   Config const cfg;
   EXPECT_EQ(cfg.aspect_w, 16);
@@ -33,6 +34,7 @@ TEST(test_config, default_values) {
   EXPECT_DOUBLE_EQ(cfg.background_light_color.z, 1.0);
 }
 
+// Pruebas de carga de configuración desde archivo
 TEST(test_config, load_aspect_ratio) {
   std::string const path = "/tmp/test_config_aspect.txt";
   std::ofstream ofs(path);
@@ -48,6 +50,7 @@ TEST(test_config, load_aspect_ratio) {
   std::filesystem::remove(path);
 }
 
+// Prueba de carga de image_width
 TEST(test_config, load_image_width) {
   std::string const path = "/tmp/test_config_image_width.txt";
   std::ofstream ofs(path);
@@ -62,6 +65,7 @@ TEST(test_config, load_image_width) {
   std::filesystem::remove(path);
 }
 
+// Prueba de carga de gamma
 TEST(test_config, load_gamma) {
   std::string const path = "/tmp/test_config_gamma.txt";
   std::ofstream ofs(path);
@@ -76,6 +80,7 @@ TEST(test_config, load_gamma) {
   std::filesystem::remove(path);
 }
 
+// Prueba de carga de camera_position
 TEST(test_config, load_camera_position) {
   std::string const path = "/tmp/test_config_camera_pos.txt";
   std::ofstream ofs(path);
@@ -92,6 +97,7 @@ TEST(test_config, load_camera_position) {
   std::filesystem::remove(path);
 }
 
+// Prueba de carga de camera_target
 TEST(test_config, load_camera_target) {
   std::string const path = "/tmp/test_config_camera_target.txt";
   std::ofstream ofs(path);
@@ -108,6 +114,7 @@ TEST(test_config, load_camera_target) {
   std::filesystem::remove(path);
 }
 
+// Prueba de carga de camera_north
 TEST(test_config, load_camera_north) {
   std::string const path = "/tmp/test_config_camera_north.txt";
   std::ofstream ofs(path);
@@ -123,6 +130,7 @@ TEST(test_config, load_camera_north) {
   std::filesystem::remove(path);
 }
 
+// Prueba de carga de field_of_view
 TEST(test_config, load_field_of_view) {
   std::string const path = "/tmp/test_config_fov.txt";
   std::ofstream ofs(path);
@@ -136,6 +144,7 @@ TEST(test_config, load_field_of_view) {
   std::filesystem::remove(path);
 }
 
+// Prueba de carga de samples_per_pixel
 TEST(test_config, load_samples_per_pixel) {
   std::string const path = "/tmp/test_config_spp.txt";
   std::ofstream ofs(path);
@@ -149,6 +158,7 @@ TEST(test_config, load_samples_per_pixel) {
   std::filesystem::remove(path);
 }
 
+// Prueba de carga de max_depth
 TEST(test_config, load_max_depth) {
   std::string const path = "/tmp/test_config_max_depth.txt";
   std::ofstream ofs(path);
@@ -162,6 +172,7 @@ TEST(test_config, load_max_depth) {
   std::filesystem::remove(path);
 }
 
+// Prueba de carga de material_rng_seed
 TEST(test_config, load_material_rng_seed) {
   std::string const path = "/tmp/test_config_mat_rng.txt";
   std::ofstream ofs(path);
@@ -175,6 +186,7 @@ TEST(test_config, load_material_rng_seed) {
   std::filesystem::remove(path);
 }
 
+// Prueba de carga de ray_rng_seed
 TEST(test_config, load_ray_rng_seed) {
   std::string const path = "/tmp/test_config_ray_rng.txt";
   std::ofstream ofs(path);
@@ -188,6 +200,7 @@ TEST(test_config, load_ray_rng_seed) {
   std::filesystem::remove(path);
 }
 
+// Prueba de carga de background colors
 TEST(test_config, load_background_colors) {
   std::string const path = "/tmp/test_config_bg.txt";
   std::ofstream ofs(path);
@@ -207,6 +220,7 @@ TEST(test_config, load_background_colors) {
   std::filesystem::remove(path);
 }
 
+// Prueba de carga de múltiples claves
 TEST(test_config, load_multiple_keys) {
   std::string const path = "/tmp/test_config_multiple.txt";
   std::ofstream ofs(path);
@@ -228,6 +242,7 @@ TEST(test_config, load_multiple_keys) {
   std::filesystem::remove(path);
 }
 
+// Prueba de carga con espacios en blanco adicionales
 TEST(test_config, load_with_whitespace) {
   std::string const path = "/tmp/test_config_ws.txt";
   std::ofstream ofs(path);
@@ -244,12 +259,14 @@ TEST(test_config, load_with_whitespace) {
   std::filesystem::remove(path);
 }
 
+// Prueba de archivo no encontrado
 TEST(test_config, file_not_found_exits) {
   Config cfg;
   EXPECT_EXIT(cfg.load_config("/nonexistent/path/config.txt"),
               ::testing::ExitedWithCode(EXIT_FAILURE), "Error: Cannot open configuration file");
 }
 
+// Prueba de línea malformada (sin ':')
 TEST(test_config, missing_colon) {
   std::string const path = "/tmp/test_config_missing_colon.txt";
   std::ofstream ofs(path);
@@ -263,6 +280,7 @@ TEST(test_config, missing_colon) {
   std::filesystem::remove(path);
 }
 
+// Prueba de clave desconocida
 TEST(test_config, unknown_key_exits) {
   std::string const path = "/tmp/test_config_unknown.txt";
   std::ofstream ofs(path);
@@ -276,6 +294,7 @@ TEST(test_config, unknown_key_exits) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_aspect_ratio_1) {
   std::string const path = "/tmp/test_config_invalid_aspect.txt";
   std::ofstream ofs(path);
@@ -289,6 +308,7 @@ TEST(test_config, invalid_aspect_ratio_1) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_aspect_ratio_2) {
   std::string const path = "/tmp/test_config_invalid_aspect2.txt";
   std::ofstream ofs(path);
@@ -302,6 +322,7 @@ TEST(test_config, invalid_aspect_ratio_2) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_aspect_ratio_3) {
   std::string const path = "/tmp/test_config_invalid_aspect3.txt";
   std::ofstream ofs(path);
@@ -315,6 +336,7 @@ TEST(test_config, invalid_aspect_ratio_3) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_aspect_ratio_4) {
   std::string const path = "/tmp/test_config_invalid_aspect4.txt";
   std::ofstream ofs(path);
@@ -328,6 +350,7 @@ TEST(test_config, invalid_aspect_ratio_4) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_image_width) {
   std::string const path = "/tmp/test_config_invalid_width.txt";
   std::ofstream ofs(path);
@@ -341,6 +364,7 @@ TEST(test_config, invalid_image_width) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_image_width_size) {
   std::string const path = "/tmp/test_config_invalid_width.txt";
   std::ofstream ofs(path);
@@ -354,6 +378,7 @@ TEST(test_config, invalid_image_width_size) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_image_width_type) {
   std::string const path = "/tmp/test_config_invalid_width.txt";
   std::ofstream ofs(path);
@@ -367,6 +392,7 @@ TEST(test_config, invalid_image_width_type) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_gamma) {
   std::string const path = "/tmp/test_config_invalid_gamma.txt";
   std::ofstream ofs(path);
@@ -380,6 +406,7 @@ TEST(test_config, invalid_gamma) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_gamma_size) {
   std::string const path = "/tmp/test_config_invalid_gamma_size.txt";
   std::ofstream ofs(path);
@@ -393,6 +420,7 @@ TEST(test_config, invalid_gamma_size) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_gamma_type) {
   std::string const path = "/tmp/test_config_invalid_gamma_type.txt";
   std::ofstream ofs(path);
@@ -406,6 +434,7 @@ TEST(test_config, invalid_gamma_type) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_camera_position) {
   std::string const path = "/tmp/test_config_invalid_cam_pos.txt";
   std::ofstream ofs(path);
@@ -419,6 +448,7 @@ TEST(test_config, invalid_camera_position) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_position_vector) {
   std::string const path = "/tmp/test_config_invalid_vec.txt";
   std::ofstream ofs(path);
@@ -432,6 +462,7 @@ TEST(test_config, invalid_position_vector) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_camera_target) {
   std::string const path = "/tmp/test_config_invalid_cam_target.txt";
   std::ofstream ofs(path);
@@ -445,6 +476,7 @@ TEST(test_config, invalid_camera_target) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_target_vector) {
   std::string const path = "/tmp/test_config_invalid_vec.txt";
   std::ofstream ofs(path);
@@ -458,6 +490,7 @@ TEST(test_config, invalid_target_vector) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_camera_north) {
   std::string const path = "/tmp/test_config_invalid_cam_north.txt";
   std::ofstream ofs(path);
@@ -471,6 +504,7 @@ TEST(test_config, invalid_camera_north) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_north_vector) {
   std::string const path = "/tmp/test_config_invalid_vec.txt";
   std::ofstream ofs(path);
@@ -484,6 +518,7 @@ TEST(test_config, invalid_north_vector) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_field_of_view) {
   std::string const path = "/tmp/test_config_invalid_fov.txt";
   std::ofstream ofs(path);
@@ -497,6 +532,7 @@ TEST(test_config, invalid_field_of_view) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_field_of_view_size) {
   std::string const path = "/tmp/test_config_invalid_fov_size.txt";
   std::ofstream ofs(path);
@@ -510,6 +546,7 @@ TEST(test_config, invalid_field_of_view_size) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_samples_per_pixel) {
   std::string const path = "/tmp/test_config_invalid_spp.txt";
   std::ofstream ofs(path);
@@ -523,6 +560,7 @@ TEST(test_config, invalid_samples_per_pixel) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_samples_per_pixel_size) {
   std::string const path = "/tmp/test_config_invalid_spp_size.txt";
   std::ofstream ofs(path);
@@ -536,6 +574,7 @@ TEST(test_config, invalid_samples_per_pixel_size) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_samples_per_pixel_type) {
   std::string const path = "/tmp/test_config_invalid_spp.txt";
   std::ofstream ofs(path);
@@ -549,6 +588,7 @@ TEST(test_config, invalid_samples_per_pixel_type) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_max_depth) {
   std::string const path = "/tmp/test_config_invalid_depth.txt";
   std::ofstream ofs(path);
@@ -562,6 +602,7 @@ TEST(test_config, invalid_max_depth) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_max_depth_size) {
   std::string const path = "/tmp/test_config_invalid_depth_size.txt";
   std::ofstream ofs(path);
@@ -575,6 +616,7 @@ TEST(test_config, invalid_max_depth_size) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_max_depth_type) {
   std::string const path = "/tmp/test_config_invalid_depth.txt";
   std::ofstream ofs(path);
@@ -588,6 +630,7 @@ TEST(test_config, invalid_max_depth_type) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_color_range_1) {
   std::string const path = "/tmp/test_config_invalid_color_1.txt";
   std::ofstream ofs(path);
@@ -601,6 +644,7 @@ TEST(test_config, invalid_color_range_1) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_color_range_2) {
   std::string const path = "/tmp/test_config_invalid_color_2.txt";
   std::ofstream ofs(path);
@@ -614,6 +658,7 @@ TEST(test_config, invalid_color_range_2) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_color_size_1) {
   std::string const path = "/tmp/test_config_invalid_color_1.txt";
   std::ofstream ofs(path);
@@ -627,6 +672,7 @@ TEST(test_config, invalid_color_size_1) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_color_size_2) {
   std::string const path = "/tmp/test_config_invalid_color_2.txt";
   std::ofstream ofs(path);
@@ -640,6 +686,7 @@ TEST(test_config, invalid_color_size_2) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_color_type_1) {
   std::string const path = "/tmp/test_config_invalid_color_1.txt";
   std::ofstream ofs(path);
@@ -653,6 +700,7 @@ TEST(test_config, invalid_color_type_1) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_color_type_2) {
   std::string const path = "/tmp/test_config_invalid_color_2.txt";
   std::ofstream ofs(path);
@@ -666,6 +714,7 @@ TEST(test_config, invalid_color_type_2) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_ray_rng_seed_zero) {
   std::string const path = "/tmp/test_config_ray_zero.txt";
   std::ofstream ofs(path);
@@ -679,6 +728,7 @@ TEST(test_config, invalid_ray_rng_seed_zero) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_ray_rng_seed_size) {
   std::string const path = "/tmp/test_config_ray_size.txt";
   std::ofstream ofs(path);
@@ -692,6 +742,7 @@ TEST(test_config, invalid_ray_rng_seed_size) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_ray_rng_seed_type) {
   std::string const path = "/tmp/test_config_ray_type.txt";
   std::ofstream ofs(path);
@@ -705,6 +756,7 @@ TEST(test_config, invalid_ray_rng_seed_type) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_material_rng_seed_zero) {
   std::string const path = "/tmp/test_config_mat_zero.txt";
   std::ofstream ofs(path);
@@ -717,6 +769,7 @@ TEST(test_config, invalid_material_rng_seed_zero) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_material_rng_seed_size) {
   std::string const path = "/tmp/test_config_mat_size.txt";
   std::ofstream ofs(path);
@@ -729,6 +782,7 @@ TEST(test_config, invalid_material_rng_seed_size) {
   std::filesystem::remove(path);
 }
 
+// Pruebas de valores inválidos para diferentes claves
 TEST(test_config, invalid_material_rng_seed_type) {
   std::string const path = "/tmp/test_config_mat_type.txt";
   std::ofstream ofs(path);

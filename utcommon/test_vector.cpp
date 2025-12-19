@@ -2,16 +2,19 @@
 #include <stdexcept>
 #include <vector.hpp>
 
+//Test vector con magnitud cero
 TEST(test_vector, magnitude_zero) {
   render::vector const vec{0.0, 0.0, 0.0};
   EXPECT_DOUBLE_EQ(vec.magnitude(), 0.0);
 }
 
+//Test vector con magnitudes positivas
 TEST(test_vector, magnitude_positive) {
   render::vector const vec{3.0, 4.0, 0.0};
   EXPECT_DOUBLE_EQ(vec.magnitude(), 5.0);
 }
 
+//Test vector con magnitudes negativas
 TEST(test_vector, add_sub) {
   render::vector const a{1.0, 2.0, 3.0};
   render::vector const b{4.0, -1.0, 0.5};
@@ -27,6 +30,7 @@ TEST(test_vector, add_sub) {
   EXPECT_DOUBLE_EQ(diff.z, 2.5);
 }
 
+//Test vector con multiples escalados y divisiones
 TEST(test_vector, muld_divd) {
   render::vector const v{2.0, -3.0, 4.5};
   render::vector const scaled = render::vector::muld(v, 2.5);
@@ -40,12 +44,14 @@ TEST(test_vector, muld_divd) {
   EXPECT_DOUBLE_EQ(halved.z, 2.25);
 }
 
+//Test division por cero lanza excepcion
 TEST(test_vector, divd_by_zero_throws) {
   render::vector const v{1.0, 2.0, 3.0};
   auto func = [&]() { [[maybe_unused]] auto res = render::vector::divd(v, 0.0); };
   EXPECT_THROW(func(), std::invalid_argument);
 }
 
+//Test producto punto y cruz
 TEST(test_vector, dot_and_cross) {
   render::vector const a{1.0, 0.0, 0.0};
   render::vector const b{0.0, 1.0, 0.0};
@@ -65,6 +71,7 @@ TEST(test_vector, dot_and_cross) {
   EXPECT_DOUBLE_EQ(render::vector::dotp(c, d), 2.0 * 5.0 + 3.0 * 6.0 + 4.0 * 7.0);
 }
 
+//Test normalizacion de vector no nulo y nulo
 TEST(test_vector, normalize_nonzero_and_zero) {
   render::vector const v{3.0, 0.0, 4.0};  // magnitude 5
   render::vector const n = render::vector::normalize(v);
@@ -80,6 +87,7 @@ TEST(test_vector, normalize_nonzero_and_zero) {
   EXPECT_DOUBLE_EQ(nz.z, 0.0);
 }
 
+//Test multiplicacion componente a componente
 TEST(test_vector, mul) {
   render::vector const a{1.0, 2.0, 3.0};
   render::vector const b{4.0, -1.0, 0.5};

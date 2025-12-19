@@ -5,6 +5,7 @@
 #include <string>
 #include <vector.hpp>
 
+// Apunta hacia el centro de la esfera
 TEST(test_sphere, RayoGolpeaCentro) {
   render::vector const center{0.0, 0.0, 0.0};
   double const radius = 1.0;
@@ -40,6 +41,7 @@ TEST(test_sphere, RayoNoGolpea) {
   EXPECT_FALSE(res.has_value());
 }
 
+// Rayo empieza dentro de la esfera
 TEST(test_sphere, RayoEmpiezaDentro) {
   render::vector const center{0.0, 0.0, 0.0};
   double const radius = 1.0;

@@ -10,6 +10,7 @@
 
 // --------------- Scene::load_scene tests ----------------
 
+//Test de casos válidos
 TEST(test_load_scene, basic_materials_and_objects) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_ok.txt";
@@ -30,6 +31,7 @@ TEST(test_load_scene, basic_materials_and_objects) {
   std::filesystem::remove(path);
 }
 
+// Test de manejo de espacios en blanco y líneas vacías
 TEST(test_load_scene, whitespace_and_empty_lines) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_ws.txt";
@@ -47,6 +49,7 @@ TEST(test_load_scene, whitespace_and_empty_lines) {
   std::filesystem::remove(path);
 }
 
+// Test de múltiples objetos que usan el mismo material
 TEST(test_load_scene, multiple_objects_same_material) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_multiobj.txt";
@@ -66,6 +69,7 @@ TEST(test_load_scene, multiple_objects_same_material) {
 
 // ======================== Invalid Cases =============================
 
+// Test de nombre de material duplicado
 TEST(test_load_scene, duplicate_material_name) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_dupmat.txt";
@@ -86,6 +90,7 @@ TEST(test_load_scene, duplicate_material_name) {
   std::filesystem::remove(path);
 }
 
+// Test de parámetros insuficientes para material
 TEST(test_load_scene, insufficient_material_parameters) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_fewmatparam.txt";
@@ -101,6 +106,7 @@ TEST(test_load_scene, insufficient_material_parameters) {
   std::filesystem::remove(path);
 }
 
+// Test de parámetros inválidos para material
 TEST(test_load_scene, invalid_material_parameters) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_badmatparam.txt";
@@ -120,6 +126,7 @@ TEST(test_load_scene, invalid_material_parameters) {
   std::filesystem::remove(path);
 }
 
+// Test de tokens extra después de definición de material
 TEST(test_load_scene, material_extra_tokens_after) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_extramaterial.txt";
@@ -139,6 +146,7 @@ TEST(test_load_scene, material_extra_tokens_after) {
   std::filesystem::remove(path);
 }
 
+// Test de objeto que referencia un material inexistente
 TEST(test_load_scene, object_refers_missing_material) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_missingmat.txt";
@@ -157,6 +165,7 @@ TEST(test_load_scene, object_refers_missing_material) {
   std::filesystem::remove(path);
 }
 
+// Test de parámetros inválidos para objeto (radio negativo)
 TEST(test_load_scene, sphere_invalid_parameters) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_inv_radius.txt";
@@ -177,6 +186,7 @@ TEST(test_load_scene, sphere_invalid_parameters) {
   std::filesystem::remove(path);
 }
 
+// Test de parámetros insuficientes para objeto
 TEST(test_load_scene, cylinder_too_few_params) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_cyl_few.txt";
@@ -195,6 +205,7 @@ TEST(test_load_scene, cylinder_too_few_params) {
   std::filesystem::remove(path);
 }
 
+//Test de tokens extra después de definición de objeto
 TEST(test_load_scene, object_extra_tokens_after) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_obj_extra.txt";
@@ -214,6 +225,7 @@ TEST(test_load_scene, object_extra_tokens_after) {
   std::filesystem::remove(path);
 }
 
+// Test de parámetros no numéricos para objeto
 TEST(test_load_scene, object_invalid_numeric_parameter) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_obj_non_numeric.txt";
@@ -233,6 +245,7 @@ TEST(test_load_scene, object_invalid_numeric_parameter) {
   std::filesystem::remove(path);
 }
 
+// Test de línea sin el ':' separador
 TEST(test_load_scene, missing_colon_label) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_missingcolon.txt";
@@ -252,6 +265,7 @@ TEST(test_load_scene, missing_colon_label) {
   std::filesystem::remove(path);
 }
 
+// Test de archivo vacío o con solo espacios en blanco
 TEST(test_load_scene, empty_file_or_only_whitespace) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_empty.txt";
@@ -266,6 +280,7 @@ TEST(test_load_scene, empty_file_or_only_whitespace) {
   std::filesystem::remove(path);
 }
 
+// Test de objeto definido antes que su material
 TEST(test_load_scene, object_before_material) {
   // el objeto hace referencia a un material que se define después
   Scene scene;
@@ -286,6 +301,7 @@ TEST(test_load_scene, object_before_material) {
   std::filesystem::remove(path);
 }
 
+// Test de entidad desconocida
 TEST(test_load_scene, unknown_entity) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_unk_ent.txt";
@@ -305,6 +321,7 @@ TEST(test_load_scene, unknown_entity) {
   std::filesystem::remove(path);
 }
 
+// Test de archivo inexistente
 TEST(test_load_scene, missing_file) {
   Scene scene;
   std::string const path = "/tmp/test_load_scene_missing_file.txt";
@@ -322,6 +339,8 @@ TEST(test_load_scene, missing_file) {
 }
 
 // -- -- -- -- -- -- -- - Scene::intersect tests -- -- -- -- -- -- -- --
+
+// Test de rayo que no intersecta ningún objeto en escena vacía
 TEST(test_intersect_scene, Intersect_NoHit) {
   Scene const scene;
   render::ray r;
@@ -332,6 +351,7 @@ TEST(test_intersect_scene, Intersect_NoHit) {
   EXPECT_FALSE(res.has_value());
 }
 
+// Test de rayo que intersecta un solo objeto
 TEST(test_intersect_scene, Intersect_SeleccionaElMasCercano) {
   Scene scene;
   std::string const path = "/tmp/test_intersect_two_spheres.txt";
@@ -359,6 +379,7 @@ TEST(test_intersect_scene, Intersect_SeleccionaElMasCercano) {
   std::filesystem::remove(path);
 }
 
+// Test de rayo que empieza dentro de un objeto
 TEST(test_intersect_scene, Intersect_RayoEmpiezaDentroSeleccionaSalida) {
   Scene scene;
   std::string const path = "/tmp/test_intersect_inside.txt";

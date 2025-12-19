@@ -5,6 +5,7 @@
 #include <pixel.hpp>
 #include <vector>
 
+//Clase que representa una imagen en formato Structure of Arrays (SoA)
 class ImageSOA {
 public:
   ImageSOA(int width, int height);

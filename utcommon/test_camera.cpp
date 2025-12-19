@@ -7,6 +7,7 @@
 
 using namespace render;
 
+// Pruebas unitarias para la clase Camera
 TEST(test_camera, RayoCentralApuntaAlDestino) {
   Config cfg;
   cfg.camera_position = {0.0, 0.0, -10.0};
@@ -38,6 +39,7 @@ TEST(test_camera, RayoCentralApuntaAlDestino) {
   EXPECT_NEAR(cos_theta, 1.0, 1e-3);  // tolerancia pequeña para permitir pequeñas desviaciones
 }
 
+// Verifica que el campo de visión afecta la dirección de los rayos generados
 TEST(test_camera, CampoVisionAfectaRayos) {
   Config cfg;
   cfg.camera_position = {0.0, 0.0, -10.0};
@@ -62,6 +64,7 @@ TEST(test_camera, CampoVisionAfectaRayos) {
   EXPECT_LT(dot, 1.0);  // no paralelos
 }
 
+// Verifica que el jitter aleatorio cambie la dirección del rayo generado
 TEST(test_camera, JitterAleatorioCambiaRayo) {
   Config cfg;
   cfg.camera_position = {0.0, 0.0, -10.0};

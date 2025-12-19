@@ -46,6 +46,7 @@ namespace render {
     return {seeds_ray, seeds_material};
   }
 
+  // Estructura para pasar el contexto de renderizado a las funciones
   void calcular_pixel_soa(int fila, int col, RenderContext & ctx) {
     render::vector acumulado{0.0, 0.0, 0.0};
     // generamos la distribucion uniforme para el anti-aliasing
@@ -74,6 +75,7 @@ namespace render {
     ctx.img->set_pixel(col, fila, Pixel{r, g, b});
   }
 
+  // Función principal de renderizado en paralelo usando TBB y SOA
   ImageSOA render_image_soa(Scene const & escena, Config const & config, Camera & camara,
                             ImageSOA & img) {
     constexpr int max_threads = 64;
@@ -113,6 +115,7 @@ namespace render {
     return img;
   }
 
+  // Función recursiva para calcular el color de un rayo usando SOA
   vector soa_calcular_color(ray const & r, int profundidad, RenderContext & render) {
     if (profundidad <= 0) {
       return vector{0.0, 0.0, 0.0};
@@ -139,6 +142,7 @@ namespace render {
     return vector::mul(reflectance, color_rebote);
   }
 
+  // Función para calcular el color de fondo basado en la dirección del rayo
   vector soa_calcular_fondo(ray const & r, Config const & config) {
     render::vector const unit_dir = render::vector::normalize(r.direction);
     double const m                = (unit_dir.y + 1.0) * 0.5;

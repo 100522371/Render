@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 
+// Función auxiliar para validar coordenadas de píxeles
 inline void ImageSOA::validate_coords(int x, int y, int w, int h) {
   if (x < 0 or x >= w or y < 0 or y >= h) {
     std::ostringstream oss;
@@ -13,6 +14,7 @@ inline void ImageSOA::validate_coords(int x, int y, int w, int h) {
   }
 }
 
+// Constructor de la clase ImageSOA
 ImageSOA::ImageSOA(int width, int height) : w_(width), h_(height) {
   if (w_ <= 0 or h_ <= 0) {
     throw std::invalid_argument("width and height must be positive");
@@ -23,6 +25,7 @@ ImageSOA::ImageSOA(int width, int height) : w_(width), h_(height) {
   B_.assign(n, 0);
 }
 
+// Métodos de la clase ImageSOA altura y ancho
 int ImageSOA::width() const noexcept {
   return w_;
 }
@@ -31,6 +34,7 @@ int ImageSOA::height() const noexcept {
   return h_;
 }
 
+// Métodos para establecer y obtener píxeles
 void ImageSOA::set_pixel(int x, int y, Pixel color) {
   validate_coords(x, y, w_, h_);
   std::size_t const idx =
@@ -47,6 +51,7 @@ Pixel ImageSOA::get_pixel(int x, int y) const {
   return Pixel{R_[idx], G_[idx], B_[idx]};
 }
 
+// Método para escribir la imagen en formato PPM (P3)
 void ImageSOA::write_ppm_p3(std::ostream & os) const {
   os << "P3\n" << w_ << ' ' << h_ << '\n' << "255\n";
   for (int y = 0; y < h_; ++y) {

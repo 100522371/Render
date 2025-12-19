@@ -12,6 +12,7 @@ namespace render {
 
   class ray;
 
+  // Contexto compartido para el renderizado paralelo
   struct RenderContext {
     Scene const * escena;
     Config const * config;
@@ -26,6 +27,7 @@ namespace render {
           material_rng(&material_rng_) { }
   };
 
+  // Renderiza la imagen usando el enfoque Structure of Arrays (SoA)
   ImageSOA render_image_soa(Scene const & escena, Config const & config, Camera & cam,
                             ImageSOA & img);
   std::pair<std::vector<std::uint64_t>, std::vector<std::uint64_t>> generar_semillas_soa(

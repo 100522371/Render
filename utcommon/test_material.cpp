@@ -11,6 +11,7 @@
 
 namespace {
 
+  // Helper para comparar dos vectores con tolerancia
   void ExpectVectorNear(render::vector const & a, render::vector const & b, double tol = 1e-9) {
     EXPECT_NEAR(a.x, b.x, tol);
     EXPECT_NEAR(a.y, b.y, tol);
@@ -31,6 +32,7 @@ namespace {
 
 }  // namespace
 
+//clase de test para materiales
 class MaterialTest : public ::testing::Test {
 protected:
   std::mt19937_64 rng{123'456'789ULL};
@@ -47,6 +49,7 @@ protected:
 
 // ==================== MATTE TESTS ====================
 
+// Verificar que la dirección retornada está normalizada
 TEST_F(MaterialTest, matte_returns_normalized_direction) {
   render::vector const in_dir = render::vector::normalize(render::vector(1.0, -1.0, 0.0));
   render::vector const normal = render::vector::normalize(render::vector(0.0, 1.0, 0.0));
@@ -57,6 +60,7 @@ TEST_F(MaterialTest, matte_returns_normalized_direction) {
   }
 }
 
+// Verificar que el reflectance retornado es el correcto
 TEST_F(MaterialTest, matte_returns_correct_reflectance) {
   render::vector const in_dir(0.0, 0.0, 1.0);
   render::vector const normal(0.0, 0.0, 1.0);
@@ -65,6 +69,7 @@ TEST_F(MaterialTest, matte_returns_correct_reflectance) {
   ExpectVectorNear(refl, render::vector(0.8, 0.3, 0.1), 1e-12);
 }
 
+// Verificar que la dirección retornada está en el hemisferio definido por la normal
 TEST_F(MaterialTest, matte_direction_in_hemisphere) {
   render::vector const in_dir = render::vector::normalize(render::vector(0.5, -1.0, 0.3));
   render::vector const normal = render::vector::normalize(render::vector(0.0, 1.0, 0.0));
@@ -75,6 +80,7 @@ TEST_F(MaterialTest, matte_direction_in_hemisphere) {
   }
 }
 
+// Verificar que la dirección varía con diferentes llamadas (componente aleatorio)
 TEST_F(MaterialTest, matte_produces_varied_directions) {
   // rng ocasionalmente puede producir la misma dirección
   // pero en 30 intentos deberíamos ver variación significativa
@@ -101,6 +107,7 @@ TEST_F(MaterialTest, matte_produces_varied_directions) {
   EXPECT_GE(found_significant_difference, 1);
 }
 
+//Tests para casos especiales de Matte
 TEST_F(MaterialTest, matte_handles_perpendicular_incidence) {
   // in_dir y normal son perpendiculares
   render::vector const in_dir(0.0, -1.0, 0.0);
@@ -111,6 +118,7 @@ TEST_F(MaterialTest, matte_handles_perpendicular_incidence) {
   ExpectInHemisphere(dir, normal);
 }
 
+// Verificar que maneja bien ángulos rasantes
 TEST_F(MaterialTest, matte_handles_grazing_incidence) {
   // in_dir casi paralelo a la superficie
   render::vector const in_dir = render::vector::normalize(render::vector(0.999, -0.001, 0.0));
@@ -121,6 +129,7 @@ TEST_F(MaterialTest, matte_handles_grazing_incidence) {
   ExpectInHemisphere(dir, normal);
 }
 
+// Verificar que maneja bien el caso donde la dirección resultante podría ser cercana a cero
 TEST_F(MaterialTest, matte_when_direction_near_zero) {
   // Caso extremo: normal muy pequeño puede provocar dir ≈ 0
   render::vector const in_dir(1.0, 0.0, 0.0);
@@ -136,6 +145,7 @@ TEST_F(MaterialTest, matte_when_direction_near_zero) {
 
 // ==================== METAL TESTS ====================
 
+// Verificar que la dirección retornada está normalizada
 TEST_F(MaterialTest, metal_perfect_reflection_no_fuzz) {
   render::vector const in_dir = render::vector::normalize(render::vector(1.0, -1.0, 0.0));
   render::vector const normal = render::vector::normalize(render::vector(0.0, 1.0, 0.0));
@@ -151,6 +161,7 @@ TEST_F(MaterialTest, metal_perfect_reflection_no_fuzz) {
   ExpectVectorNear(refl, render::vector(0.9, 0.9, 0.9), 1e-12);
 }
 
+// Verificar que la dirección retornada está normalizada incluso con fuzz
 TEST_F(MaterialTest, metal_returns_normalized_with_fuzz) {
   render::vector const in_dir = render::vector::normalize(render::vector(0.6, -0.8, 0.0));
   render::vector const normal(0.0, 1.0, 0.0);
@@ -161,6 +172,7 @@ TEST_F(MaterialTest, metal_returns_normalized_with_fuzz) {
   }
 }
 
+// Verificar que el reflectance retornado es el correcto
 TEST_F(MaterialTest, metal_fuzz_creates_variation) {
   render::vector const in_dir = render::vector::normalize(render::vector(0.5, -0.5, 0.5));
   render::vector const normal = render::vector::normalize(render::vector(0.0, 1.0, 0.0));
@@ -196,6 +208,7 @@ TEST_F(MaterialTest, metal_fuzz_creates_variation) {
   EXPECT_GE(found_significant_difference, 1);  // Variación significativa entre resultados
 }
 
+// Verificar que con fuzz=1.0 la variación es alta
 TEST_F(MaterialTest, metal_max_fuzz_creates_large_variation) {
   // Con fuzz=1.0, la variación debe ser muy alta
   // in_dir perpendicular a normal para máxima dispersión
@@ -227,6 +240,7 @@ TEST_F(MaterialTest, metal_max_fuzz_creates_large_variation) {
     return std::sqrt(var / static_cast<double>(vals.size()));
   };
 
+  // Desviación estándar en X y Z
   double const stddev_x = calc_stddev(x_coords);
   double const stddev_z = calc_stddev(z_coords);
 
@@ -246,6 +260,7 @@ TEST_F(MaterialTest, metal_max_fuzz_creates_large_variation) {
   EXPECT_FALSE(all_same);
 }
 
+// Verificar que con fuzz=0.0 la variación es mínima comparado con fuzz=1.0
 TEST_F(MaterialTest, metal_fuzz_zero_vs_one_comparison) {
   render::vector const in_dir(0.0, -1.0, 0.0);
   render::vector const normal(0.0, 1.0, 0.0);
@@ -286,6 +301,7 @@ TEST_F(MaterialTest, metal_fuzz_zero_vs_one_comparison) {
   EXPECT_GT(avg_max_fuzz, avg_no_fuzz * 10);
 }
 
+// Verificar que maneja bien el caso de incidencia perpendicular
 TEST_F(MaterialTest, metal_handles_perpendicular_incidence) {
   render::vector const in_dir(0.0, -1.0, 0.0);
   render::vector const normal(0.0, 1.0, 0.0);
@@ -296,6 +312,7 @@ TEST_F(MaterialTest, metal_handles_perpendicular_incidence) {
   ExpectVectorNear(dir, render::vector(0.0, 1.0, 0.0), 1e-6);
 }
 
+// Verificar que maneja bien ángulos rasantes
 TEST_F(MaterialTest, metal_when_result_near_zero) {
   render::vector const in_dir(1.0, 0.0, 0.0);
   render::vector const normal(1e-10, 1e-10, 1e-10);
@@ -309,6 +326,7 @@ TEST_F(MaterialTest, metal_when_result_near_zero) {
 
 // ==================== REFRACTIVE TESTS ====================
 
+// Verificar que la dirección retornada está normalizada
 TEST_F(MaterialTest, refractive_returns_normalized_direction) {
   render::vector const in_dir = render::vector::normalize(render::vector(0.0, -1.0, 0.2));
   render::vector const normal(0.0, 1.0, 0.0);
@@ -317,6 +335,7 @@ TEST_F(MaterialTest, refractive_returns_normalized_direction) {
   ExpectNormalized(dir, 1e-8);
 }
 
+// Verificar que el reflectance retornado es el correcto
 TEST_F(MaterialTest, refractive_returns_white_attenuation) {
   render::vector const in_dir = render::vector::normalize(render::vector(0.5, -0.5, 0.0));
   render::vector const normal(0.0, 1.0, 0.0);
@@ -325,6 +344,7 @@ TEST_F(MaterialTest, refractive_returns_white_attenuation) {
   ExpectVectorNear(refl, render::vector(1.0, 1.0, 1.0), 1e-12);
 }
 
+// Verificar que la refracción dobla el rayo hacia la normal al entrar a un medio más denso
 TEST_F(MaterialTest, refractive_bends_toward_normal_entering) {
   // Rayo entrando desde aire a vidrio, debe doblarse hacia la normal
   render::vector const in_dir = render::vector::normalize(render::vector(1.0, -1.0, 0.0));
@@ -339,6 +359,7 @@ TEST_F(MaterialTest, refractive_bends_toward_normal_entering) {
   EXPECT_GT(cos_out, cos_in);  // Más cercano a la normal
 }
 
+// Verificar que la refracción dobla el rayo alejándose de la normal al salir a un medio menos denso
 TEST_F(MaterialTest, refractive_total_internal_reflection) {
   // no existe refracción, solo reflexión -> TIR(total internal reflection)
   // in_dir casi tangencial -> angulo de incidencia respecto a la normal alto -> sin theta alto
@@ -359,6 +380,7 @@ TEST_F(MaterialTest, refractive_total_internal_reflection) {
   ExpectVectorNear(dir, expected_reflect, 1e-5);
 }
 
+// Verificar incidencia perpendicular
 TEST_F(MaterialTest, refractive_perpendicular_incidence) {
   render::vector const in_dir(0.0, -1.0, 0.0);
   render::vector const normal(0.0, 1.0, 0.0);
@@ -370,6 +392,7 @@ TEST_F(MaterialTest, refractive_perpendicular_incidence) {
   ExpectVectorNear(dir, render::vector(0.0, -1.0, 0.0), 1e-5);
 }
 
+// Verificar ángulo rasante
 TEST_F(MaterialTest, refractive_high_ior_more_bending) {
   // Comparar ior_vidrio vs ior_diamante para el mismo ángulo de incidencia
   render::vector const in_dir = render::vector::normalize(render::vector(1.0, -1.0, 0.0));
@@ -385,6 +408,7 @@ TEST_F(MaterialTest, refractive_high_ior_more_bending) {
   EXPECT_GT(cos_diamond, cos_glass);
 }
 
+// Verificar comportamiento al entrar vs salir del material
 TEST_F(MaterialTest, refractive_entering_vs_exiting) {
   render::vector const normal(0.0, 1.0, 0.0);
   // Entrando (aire -> vidrio): dotp < 0 -> front_face true
@@ -403,6 +427,7 @@ TEST_F(MaterialTest, refractive_entering_vs_exiting) {
   EXPECT_NE(cos_enter, cos_exit);
 }
 
+// Verificar que la refracción sigue aproximadamente la ley de Snell
 TEST_F(MaterialTest, refractive_snells_law_approximation) {
   // Verificar que sigue aproximadamente la ley de Snell: n1*sin(θ1) = n2*sin(θ2)
   double const angle_in = std::numbers::pi / 4.0;  // 45 grados
@@ -425,6 +450,7 @@ TEST_F(MaterialTest, refractive_snells_law_approximation) {
 
 // ==================== EDGE CASES & INVALID SCENARIOS ====================
 
+// Verificar que con ior=1 no hay desviación
 TEST_F(MaterialTest, refractive_with_ior_one) {
   Refractive const vacuum{"vacuum", 1.0};
 
@@ -438,6 +464,7 @@ TEST_F(MaterialTest, refractive_with_ior_one) {
   ExpectVectorNear(dir, in_dir, 1e-5);
 }
 
+// Verificar que los materiales manejan normales no normal
 TEST_F(MaterialTest, all_materials_handle_non_normalized_normal) {
   render::vector const in_dir = render::vector::normalize(render::vector(1.0, -1.0, 0.0));
   render::vector const normal_unnormalized(0.0, 2.0, 0.0);  // No normalizado
@@ -453,6 +480,7 @@ TEST_F(MaterialTest, all_materials_handle_non_normalized_normal) {
   EXPECT_FALSE(std::isnan(dir_refr.x));
 }
 
+// Verificar que maneja bien ángulos rasantes extremos
 TEST_F(MaterialTest, refractive_extreme_grazing_angle) {
   // Ángulo casi tangencial
   render::vector const in_dir = render::vector::normalize(render::vector(0.9999, -0.01, 0.0));
@@ -482,6 +510,7 @@ TEST_F(MaterialTest, metal_fuzz_clamped_to_valid_range) {
   ExpectNormalized(dir_large, 1e-8);
 }
 
+// Verificar reproducibilidad con la misma semilla
 TEST_F(MaterialTest, reproducibility_with_same_seed) {
   std::mt19937_64 rng1{42};
   std::mt19937_64 rng2{42};

@@ -5,6 +5,7 @@
 
 using namespace render;
 
+// Pruebas unitarias para la clase Cylinder
 TEST(test_cylinder, RayoAtraviesaLateralmente) {
   // Cilindro centrado en el origen, eje vertical Y
   Cylinder const cyl(vector{0, 0, 0}, 1.0, vector{0, 2.0, 0}, "metal");
@@ -23,6 +24,7 @@ TEST(test_cylinder, RayoAtraviesaLateralmente) {
   EXPECT_NEAR(inter.vector_normal.x, -1.0, 1e-6);
 }
 
+// Rayo que no intersecta el cilindro
 TEST(test_cylinder, RayoNoAtraviesa) {
   Cylinder const cyl(vector{0, 0, 0}, 1.0, vector{0, 2.0, 0}, "metal");
   ray const r(vector{-3, 3, 0}, vector{1, 0, 0});  // pasa por arriba del cilindro
@@ -30,6 +32,7 @@ TEST(test_cylinder, RayoNoAtraviesa) {
   EXPECT_FALSE(inter.has_value());
 }
 
+// Rayo que intersecta la base superior del cilindro
 TEST(test_cylinder, RayoPasaPorBaseSuperior) {
   Cylinder const cyl(vector{0, 0, 0}, 1.0, vector{0, 2.0, 0}, "metal");
   ray const r(vector{0, 3, 0}, vector{0, -1, 0});  // hacia abajo
@@ -42,6 +45,7 @@ TEST(test_cylinder, RayoPasaPorBaseSuperior) {
   EXPECT_NEAR(inter.vector_normal.y, 1.0, 1e-6);
 }
 
+// Rayo que intersecta la base inferior del cilindro
 TEST(test_cylinder, RayoPasaPorBaseInferior) {
   Cylinder const cyl(vector{0, 0, 0}, 1.0, vector{0, 2.0, 0}, "metal");
   ray const r(vector{0, -3, 0}, vector{0, 1, 0});  // hacia arriba
@@ -54,6 +58,7 @@ TEST(test_cylinder, RayoPasaPorBaseInferior) {
   EXPECT_NEAR(inter.vector_normal.y, -1.0, 1e-6);
 }
 
+// Rayo que empieza dentro del cilindro y sale por el lateral
 TEST(test_cylinder, RayoEmpiezaDentroDelCilindro) {
   Cylinder const cyl(vector{0, 0, 0}, 1.0, vector{0, 2.0, 0}, "metal");
   ray const r(vector{0, 0, 0}, vector{1, 0, 0});
@@ -66,6 +71,7 @@ TEST(test_cylinder, RayoEmpiezaDentroDelCilindro) {
   EXPECT_NEAR(inter.vector_normal.x, -1.0, 1e-6);
 }
 
+// Rayo paralelo al eje del cilindro que no impacta
 TEST(test_cylinder, RayoParaleloAlEjeSinImpacto) {
   Cylinder const cyl(vector{0, 0, 0}, 1.0, vector{0, 2.0, 0}, "metal");
   ray const r(vector{2, -3, 0}, vector{0, 1, 0});  // paralelo al eje, fuera del radio

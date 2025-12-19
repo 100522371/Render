@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+// Programa principal para renderizar una escena a partir de un archivo de configuración y un archivo de escena.
 int main(int argc, char * argv[]) {
   std::vector<std::string> args(argv, argv + argc);
   if (argc != 4) {

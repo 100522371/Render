@@ -8,6 +8,7 @@
 
 namespace render {
 
+  // Cámara que genera rayos para cada píxel de la imagen
   class Camera {
   public:
     explicit Camera(Config const & config);
