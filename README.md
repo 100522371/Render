@@ -34,7 +34,7 @@ Por ejemplo:
 
 Los archivos de configuración permiten ajustar la cámara, la resolución, el número de muestras por píxel, la profundidad máxima y las semillas aleatorias. Los archivos de escena definen materiales y objetos geométricos, como esferas y cilindros.
 
-![Resultado del test](test/resultado.ppm)
+![Resultado del test](resultado.png)
 
 ## Pruebas
 
